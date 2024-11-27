@@ -1,0 +1,59 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment directories
+venv/
+env/
+ENV/
+*.venv
+
+# Environment variable files
+.env
+*.env
+
+# Python package files
+*.egg
+*.egg-info/
+dist/
+build/
+pip-wheel-metadata/
+
+# Output folders and files
+/output_folder/
+/output_summary/
+summary_of_injuries.txt
+
+# PDF and image files
+*.pdf
+*.png
+*.jpg
+*.jpeg
+*.bmp
+*.tiff
+
+# Logs and debug files
+*.log
+debug.log
+
+# MacOS files
+.DS_Store
+
+# PyCharm project settings
+.idea/
+
+# Temporary files
+*.tmp
+*.swp
+*~
+
+# Pylint reports
+pylint-report.txt
+
+# Test reports
+.test_reports/
+
+# Ignore secret configuration files
+settings.ini
+config.ini
