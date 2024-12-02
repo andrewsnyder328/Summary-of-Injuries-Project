@@ -5,11 +5,11 @@ import json
 import concurrent.futures
 from pdf2image import convert_from_path
 
-from utils import extract_text_from_image, combine_page_contents, save_markdown, extract_icd10_code_from_results, \
+from utils import extract_text_from_image, combine_page_contents, extract_icd10_code_from_results, \
     search_icd10_code, generate_search_query
 
 
-def process_pdf_file(pdf_path, output_folder):
+def process_pdf_file(pdf_path):
     """Process a single PDF file and generate the markdown summary."""
     pdf_file = os.path.basename(pdf_path)
     document_name = os.path.splitext(pdf_file)
@@ -25,7 +25,7 @@ def process_pdf_file(pdf_path, output_folder):
         page_number, image = page_tuple
         logging.info(f"Processing page {page_number + 1} of '{pdf_file}'...")
         assistant_message = extract_text_from_image(image, page_number=page_number + 1)
-        return (page_number, assistant_message)
+        return page_number, assistant_message
 
     # Initialize an empty list to store tuples of (page_number, assistant_message)
     page_results = []
@@ -79,7 +79,7 @@ def process_pdf_file(pdf_path, output_folder):
                 # output_md_path = os.path.join(output_folder, f"{document_name}_summary.md")
                 # save_markdown(output_md_path, combined_markdown)
 
-                # **New Step: Generate Search Query and Extract Information**
+                # Generate Search Query and Extract Information
                 extracted_info = generate_search_query(
                     combined_markdown,
                     document_name
@@ -98,13 +98,13 @@ def process_pdf_file(pdf_path, output_folder):
                 logging.info(f"Extracted Reference: {reference}")
                 logging.info(f"Generated Search Query: {query}")
 
-                # **New Step: Perform Web Search**
+                # Perform Web Search
                 search_results = search_icd10_code(query)
                 if not search_results:
                     logging.error(f"Failed to retrieve search results for '{pdf_file}'.")
                     return
 
-                # **New Step: Extract ICD-10 Code from Results**
+                # Extract ICD-10 Code from Results
                 icd10_code = extract_icd10_code_from_results(search_results)
                 if not icd10_code:
                     logging.error(f"Failed to extract ICD-10 code for '{pdf_file}'.")
@@ -112,7 +112,7 @@ def process_pdf_file(pdf_path, output_folder):
 
                 logging.info(f"Extracted ICD-10 code: {icd10_code}")
 
-                # **Collect the Record**
+                # Collect the Record
                 record = {
                     "date_of_visit": date_of_visit,
                     "diagnosis": diagnosis,
@@ -128,9 +128,6 @@ def process_pdf_file(pdf_path, output_folder):
         except json.JSONDecodeError as e:
             logging.error(f"Error parsing combined JSON for '{pdf_file}': {e}")
             return
-
-        output_md_path = os.path.join(output_folder, f"{os.path.splitext(pdf_file)[0]}_summary.md")
-        save_markdown(output_md_path, combined_markdown)
     else:
         logging.error(f"Content combination failed for '{pdf_file}'.")
 
@@ -198,7 +195,7 @@ def main():
     records = []  # List to store all records
 
     for pdf_file in pdf_files:
-        record = process_pdf_file(pdf_file, output_folder)
+        record = process_pdf_file(pdf_file)
         if record:
             records.append(record)
 
